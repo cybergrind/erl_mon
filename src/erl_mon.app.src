@@ -1,0 +1,13 @@
+{application, erl_mon,
+ [
+  {description, "Erlang monitoring daemon"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  lager
+                 ]},
+  {mod, { erl_mon_app, []}},
+  {env, []}
+ ]}.
