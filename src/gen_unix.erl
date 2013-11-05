@@ -41,7 +41,7 @@ init([]) ->
   {ok, Poll} = inert:start(),
   ok = procket:bind(Socket, SockPath),
   ok = procket:listen(Socket, ?BACKLOG),
-  State = #st{sock=Socket},
+  State = #st{sock=Socket, poll=Poll},
   SelfPid = self(),
   spawn_link(gen_unix, accept_loop, [Socket, SelfPid, Poll]),
   {ok, State}.
@@ -56,7 +56,8 @@ handle_cast(Req, State) ->
   lager:debug("Unhandled cast: ~p~n", [Req]),
   {noreply, State}.
 
-handle_info({ready, Sock}, State) ->
+handle_info({ready, Sock}, #st{poll=Poll}=State) ->
+  inert:poll(Poll, Sock, [{timeout, 250}]),
   case procket:recv(Sock, 1024) of
     {ok, Req} ->
       lager:debug("Read req ~p", [Req]),
