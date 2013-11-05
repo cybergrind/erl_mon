@@ -61,6 +61,9 @@ handle_info({ready, Sock}, State) ->
     {ok, Req} ->
       lager:debug("Read req ~p", [Req]),
       gen_server:cast(erl_mon, {req, Req, Sock, self()});
+    {error,eagain} ->
+      lager:debug("Got eagain. Try read again"),
+      self() ! {ready, Sock};
     Error ->
       lager:error("During read from unix socket: ~p", [Error]),
       procket:write(Sock, <<"-1">>) end,
